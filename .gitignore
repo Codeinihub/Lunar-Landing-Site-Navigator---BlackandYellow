@@ -179,3 +179,24 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+# ==========================================
+# NASA Space Apps & Large Dataset Additions
+# ==========================================
+# Ignore local data folders entirely
+data/
+datasets/
+raw_data/
+
+# Ignore common large geospatial/planetary data file formats
+*.csv
+*.json
+*.geojson
+*.h5
+*.hdf5
+*.nc
+*.netcdf
+*.tiff
+*.tif
+*.bsp
+*.tls
+*.tpc
