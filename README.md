@@ -46,3 +46,33 @@ Group our tech stack logically so judges can see our code literacy.
 *   **Inioluwa Olorunfemi** - [Role, e.g., Data Engineer & ML Developer]
 *   **Teammate 1** - [Role]
 *   **Teammate 2** - [Role]
+
+
+
+
+
+## Project Name
+
+
+
+
+
+## Summary 
+
+
+## Project Demonstration
+
+## Project 
+
+## Project Details
+
+
+## Use of Artificial Intelligence 
+
+
+## NASA Data
+
+
+
+## Space Agency Partner & Other Data
+
