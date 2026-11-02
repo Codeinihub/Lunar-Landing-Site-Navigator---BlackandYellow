@@ -4,11 +4,27 @@
 [![NASA Space Apps Challenge](https://shields.io)](https://spaceappschallenge.org)
 [![Project Status](https://shields.io)](#)
 
-## Project Overview
+## Project Name
+
+## Team Introduction
+(Optional)
+* Longshu Cong
+* Osamede Ekhator
+* Nathan Lee
+* Jenson Liu
+* Rain Liu
+* Inioluwa Olorunfemi
+
+## Summary
 A concise, 2-3 sentence high-level summary of our project. Explain exactly what our tool does, who it is for (e.g., Artemis mission planners, the general public), and how it solves the core challenge of balancing solar illumination and direct Earth-to-Moon communication windows.
 
+## Project Demonstration
 *   **Live Demo Link:** [Insert our URL if hosted, e.g., GitHub Pages / Vercel]
 *   **Submission Video:** [Insert YouTube/Vimeo Link]
+
+## Project 
+
+## Project Details
 
 ## The Challenge & Our Solution
 Missions to the lunar south pole face extreme environmental constraints, including low-angle solar tracking and complex line-of-sight communication blocks due to rugged terrain. Current planetary data tools are often fragmented and difficult for non-specialists to navigate.
@@ -32,47 +48,18 @@ Group our tech stack logically so judges can see our code literacy.
 *   **Data Visualization:** Chart.js / D3.js / Leaflet / Three.js
 *   **Version Control:** Git, GitHub
 
-## NASA Data & Resources Used
+## Use of Artificial Intelligence 
+
+## NASA Data
 *Judges pay special attention to this section. List the exact datasets or open resources we accessed.*
 
 *   **[Dataset Name 1, e.g., Lunar Reconnaissance Orbiter (LRO) LOLA Data]:** Used to extract coordinates and evaluate surface topography.
 *   **[Dataset Name 2, e.g., NASA SPICE WebGeocalc / Horizon Ephemerides]:** Leveraged to calculate relative Sun and Earth angles over time.
 
+## Space Agency Partner & Other Data
+
 ## Challenges Overcome & Lessons Learned
 *   **Data Scale & Parsing:** Handling large arrays of coordinate and orbital tracking data required optimizing our scripts using NumPy to maintain smooth frontend performance.
 *   **First-Time Hackathon Collaboration:** As a first-time Space Apps team, balancing modular development and setting up clean Git branch rules helped us integrate our UI and data pipeline under a tight 48-hour deadline.
 
-## Meet Team [Insert Team Name]
-*   **Inioluwa Olorunfemi** - [Role, e.g., Data Engineer & ML Developer]
-*   **Teammate 1** - [Role]
-*   **Teammate 2** - [Role]
-
-
-
-
-
-## Project Name
-
-
-
-
-
-## Summary 
-
-
-## Project Demonstration
-
-## Project 
-
-## Project Details
-
-
-## Use of Artificial Intelligence 
-
-
-## NASA Data
-
-
-
-## Space Agency Partner & Other Data
 
