@@ -27,20 +27,20 @@
 	* • Quantile regression
 		
 * Time-Series Decomposition & Signal Processing
-		* • STL Decomposition 
-		* • Deseasonalization / Climate Anomalies
+	* • STL Decomposition 
+	* • Deseasonalization / Climate Anomalies
 	
 * Change-Point & Regime Shift Detection
-		* • Pettitt’s test
-		* • pruned exact linear time
+	* • Pettitt’s test
+	* • pruned exact linear time
 
 * Correlation (Optional)
-		* • Spearman’s rank correlation
-		* • Cross-Correlation Function (CCF)
+	* • Spearman’s rank correlation
+	* • Cross-Correlation Function (CCF)
 	
 * Spatiotemporal & Geospatial Statistics
-		* • Pixel-Based Trend Analysis
-		* • Spatial Autocorrelation	
+	* • Pixel-Based Trend Analysis
+	* • Spatial Autocorrelation	
 
 
 
