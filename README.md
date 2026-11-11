@@ -22,25 +22,25 @@
 
 ## Statistical analysis methods
 * Trend & Directionality Analysis
-		• Mann – Kendall test (p – value)
-		• Theil-Sen estimator 
-		• Quantile regression
+	* • Mann – Kendall test (p – value)
+	* • Theil-Sen estimator 
+	* • Quantile regression
 		
-	Time-Series Decomposition & Signal Processing
-		• STL Decomposition 
-		• Deseasonalization / Climate Anomalies
+* Time-Series Decomposition & Signal Processing
+		* • STL Decomposition 
+		* • Deseasonalization / Climate Anomalies
 	
-	Change-Point & Regime Shift Detection
-		• Pettitt’s test
-		• pruned exact linear time
+* Change-Point & Regime Shift Detection
+		* • Pettitt’s test
+		* • pruned exact linear time
 
-	Correlation (Optional)
-		• Spearman’s rank correlation
-		• Cross-Correlation Function (CCF)
+* Correlation (Optional)
+		* • Spearman’s rank correlation
+		* • Cross-Correlation Function (CCF)
 	
-Spatiotemporal & Geospatial Statistics
-		• Pixel-Based Trend Analysis
-		• Spatial Autocorrelation	
+* Spatiotemporal & Geospatial Statistics
+		* • Pixel-Based Trend Analysis
+		* • Spatial Autocorrelation	
 
 
 
