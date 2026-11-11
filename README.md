@@ -4,16 +4,52 @@
 [![NASA Space Apps Challenge](https://shields.io)](https://spaceappschallenge.org)
 [![Project Status](https://shields.io)](#)
 
+
+## Public data resources
+*   https://www.cuahsi.org/community/water-data-portals
+*   https://www.earthdata.nasa.gov/data/instruments/omi/data-access-tools
+*   https://gpm.nasa.gov/data/directory
+*   https://gpm.nasa.gov/data/sources
+*   https://disc.gsfc.nasa.gov/datasets?project=MERRA-2
+*   https://disc.gsfc.nasa.gov/datasets?keywords=GLDAS
+*   https://disc.gsfc.nasa.gov/datasets?keywords=NLDAS
+*   https://disc.gsfc.nasa.gov/datasets?keywords=NCA-LDAS
+*   https://disc.gsfc.nasa.gov/datasets?keywords=FLDAS
+
+
+
+
+
+## Statistical analysis methods
+* Trend & Directionality Analysis
+		• Mann – Kendall test (p – value)
+		• Theil-Sen estimator 
+		• Quantile regression
+		
+	Time-Series Decomposition & Signal Processing
+		• STL Decomposition 
+		• Deseasonalization / Climate Anomalies
+	
+	Change-Point & Regime Shift Detection
+		• Pettitt’s test
+		• pruned exact linear time
+
+	Correlation (Optional)
+		• Spearman’s rank correlation
+		• Cross-Correlation Function (CCF)
+	
+Spatiotemporal & Geospatial Statistics
+		• Pixel-Based Trend Analysis
+		• Spatial Autocorrelation	
+
+
+
+
+
+
+
 ## Project Name
 
-## Team Introduction
-(Optional)
-* Longshu Cong
-* Osamede Ekhator
-* Nathan Lee
-* Jenson Liu
-* Rain Liu
-* Inioluwa Olorunfemi
 
 ## Summary
 A concise, 2-3 sentence high-level summary of our project. Explain exactly what our tool does, who it is for (e.g., Artemis mission planners, the general public), and how it solves the core challenge of balancing solar illumination and direct Earth-to-Moon communication windows.
@@ -26,27 +62,8 @@ A concise, 2-3 sentence high-level summary of our project. Explain exactly what 
 
 ## Project Details
 
-## The Challenge & Our Solution
-Missions to the lunar south pole face extreme environmental constraints, including low-angle solar tracking and complex line-of-sight communication blocks due to rugged terrain. Current planetary data tools are often fragmented and difficult for non-specialists to navigate.
-
-Our team built **[App Name]**, an intuitive dashboard that combines positional ephemeris data into a single interactive timeline. Users can select candidate landing sites and dynamically simulate Sun and Earth elevation angles over specified calendar intervals to instantly evaluate operational viability.
-
-## How It Works & Architecture
-Provide a short description of our technical pipeline. Explain how data moves from NASA's repositories to our user interface.
 
 
-### Key Features
-*   **Feature Name 1:** Short 1-sentence description (e.g., Dynamic Timeline Slider for 30-day illumination windows).
-*   **Feature Name 2:** Short 1-sentence description (e.g., Direct Earth visibility mapping for real-time telemetry assessment).
-*   **Feature Name 3:** Short 1-sentence description (e.g., Clean UX built using accessible web technology).
-
-## Technologies Used
-Group our tech stack logically so judges can see our code literacy.
-
-*   **Data Processing & Backend:** Python, NumPy, Pandas
-*   **Frontend & UI:** HTML5, CSS3, JavaScript (or Framework like React / Vue)
-*   **Data Visualization:** Chart.js / D3.js / Leaflet / Three.js
-*   **Version Control:** Git, GitHub
 
 ## Use of Artificial Intelligence 
 
@@ -57,9 +74,5 @@ Group our tech stack logically so judges can see our code literacy.
 *   **[Dataset Name 2, e.g., NASA SPICE WebGeocalc / Horizon Ephemerides]:** Leveraged to calculate relative Sun and Earth angles over time.
 
 ## Space Agency Partner & Other Data
-
-## Challenges Overcome & Lessons Learned
-*   **Data Scale & Parsing:** Handling large arrays of coordinate and orbital tracking data required optimizing our scripts using NumPy to maintain smooth frontend performance.
-*   **First-Time Hackathon Collaboration:** As a first-time Space Apps team, balancing modular development and setting up clean Git branch rules helped us integrate our UI and data pipeline under a tight 48-hour deadline.
 
 
