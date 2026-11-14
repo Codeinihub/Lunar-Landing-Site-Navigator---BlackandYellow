@@ -24,16 +24,16 @@
 
 ## Statistical analysis methods
 * Trend & Directionality Analysis
-	*  Mann – Kendall test (p – value)
-	*  Theil-Sen estimator 
-	*  Quantile regression
+	*  Mann – Kendall test (p – value) (pymannkendall = PyPI)
+	*  Theil-Sen estimator (SciPy)
+	*  Quantile regression (statsmodels)
 		
 * Time-Series Decomposition & Signal Processing
-	*  STL Decomposition 
-	*  Deseasonalization / Climate Anomalies
+	*  STL Decomposition (statsmodels)
+	*  Deseasonalization / Climate Anomalies (Pandas)
 	
 * Change-Point & Regime Shift Detection
-	*  Pettitt’s test
+	*  Pettitt’s test (pyhomogeneity - PyPI)
 
 
 
