@@ -16,6 +16,7 @@
 *   https://disc.gsfc.nasa.gov/datasets?keywords=NLDAS
 *   https://disc.gsfc.nasa.gov/datasets?keywords=NCA-LDAS
 *   https://disc.gsfc.nasa.gov/datasets?keywords=FLDAS
+*   https://planetarycomputer.microsoft.com/catalog
 
 
 
