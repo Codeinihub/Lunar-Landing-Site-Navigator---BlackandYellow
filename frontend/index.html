@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Earth Trend Detective</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">EARTH<span>DETECTIVE</span></div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#explore">Explore Data</a>
+            <a href="#about">About</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="hero" id="home">
+            <p class="eyebrow">NASA EARTH SCIENCE DATA</p>
+            <h1>Discover the trends<br>shaping our planet.</h1>
+            <p class="subtitle">
+                Explore environmental changes through satellite observations,
+                statistical analysis, and scientific data.
+            </p>
+            <a href="#explore" class="primary-button">
+                Start Exploring
+            </a>
+        </section>
+
+        <section class="explorer" id="explore">
+
+            <h2>Environmental Data Explorer</h2>
+            <p>Select your location and environmental variable.</p>
+
+            <form id="dataForm">
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label for="latitude">Latitude</label>
+                        <input
+                            type="number"
+                            id="latitude"
+                            value="49.8951"
+                            step="any"
+                            min="-90"
+                            max="90"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="longitude">Longitude</label>
+                        <input
+                            type="number"
+                            id="longitude"
+                            value="-97.1384"
+                            step="any"
+                            min="-180"
+                            max="180"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="variable">Environmental Variable</label>
+                        <select id="variable">
+                            <option value="T2M">Temperature (°C)</option>
+                            <option value="PRECTOTCORR">Precipitation (mm/day)</option>
+                            <option value="RH2M">Relative Humidity (%)</option>
+                            <option value="WS10M">Wind Speed (m/s)</option>
+                            <option value="ALLSKY_SFC_SW_DWN">Solar Radiation</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="startYear">Start Year</label>
+                        <input
+                            type="number"
+                            id="startYear"
+                            value="2020"
+                            min="1981"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="endYear">End Year</label>
+                        <input
+                            type="number"
+                            id="endYear"
+                            value="2025"
+                            min="1981"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <button type="submit" id="submitButton">
+                    Retrieve NASA Data
+                </button>
+
+            </form>
+
+            <div id="status"></div>
+
+            <section id="results" hidden>
+
+                <h2>Retrieved Data</h2>
+
+                <div class="result-card">
+                    <p>Data Source</p>
+                    <h3>NASA POWER</h3>
+                </div>
+
+                <div class="result-card">
+                    <p>Number of observations</p>
+                    <h3 id="observationCount">-</h3>
+                </div>
+
+                <div class="result-card">
+                    <p>Environmental Variable</p>
+                    <h3 id="selectedVariable">-</h3>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Measurement</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTable"></tbody>
+                    </table>
+                </div>
+
+            </section>
+
+        </section>
+
+        <section class="about" id="about">
+            <h2>Why Earth Trend Detective?</h2>
+            <p>
+                Our goal is to make Earth science data more accessible by
+                identifying meaningful environmental patterns and trends.
+            </p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Earth Trend Detective | NASA Space Apps Challenge</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
