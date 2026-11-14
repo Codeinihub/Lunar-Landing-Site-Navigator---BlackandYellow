@@ -7,11 +7,12 @@ app = FastAPI(title="Earth Trend Detective API")
 
 
 class PowerRequest(BaseModel):
-    latitude: float
-    longitude: float
+    temporal_resolution: Literal["daily", "monthly", "hourly"] = "daily"
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=-180)
     start_year: int
     end_year: int
-    parameter: str = "T2M"
+    parameter: list[str] = Field(min_length=1, max_length=20)
 
 
 @app.get("/")
@@ -24,7 +25,7 @@ def health():
     return {"status": "healthy"}
 
 
-@app.post("/data")
+@app.post("/data/power")
 def get_power_data(request: PowerRequest):
 
     if request.start_year > request.end_year:
@@ -33,11 +34,11 @@ def get_power_data(request: PowerRequest):
             detail="Start year must be before end year"
         )
 
-    url = "https://power.larc.nasa.gov/api/temporal/daily/point"
+    url = (f"https://power.larc.nasa.gov/api/temporal/{requests.temporal_resolution}/point")
 
     params = {
-        "parameters": request.parameter,
-        "community": "AG",
+        "parameters": ",".join(request.parameter),
+        "community": "RE",
         "longitude": request.longitude,
         "latitude": request.latitude,
         "start": f"{request.start_year}0101",
