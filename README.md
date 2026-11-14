@@ -33,15 +33,6 @@
 	
 * Change-Point & Regime Shift Detection
 	*  Pettitt’s test
-	*  pruned exact linear time
-
-* Correlation (Optional)
-	*  Spearman’s rank correlation
-	*  Cross-Correlation Function (CCF)
-	
-* Spatiotemporal & Geospatial Statistics
-	*  Pixel-Based Trend Analysis
-	*  Spatial Autocorrelation	
 
 
 
