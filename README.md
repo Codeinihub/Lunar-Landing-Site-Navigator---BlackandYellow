@@ -6,6 +6,7 @@
 
 
 ## Public data resources
+*   https://www.spaceappschallenge.org/2026/challenges/earth-system-trend-detective/?tab=resources
 *   https://www.cuahsi.org/community/water-data-portals
 *   https://www.earthdata.nasa.gov/data/instruments/omi/data-access-tools
 *   https://gpm.nasa.gov/data/directory
@@ -52,7 +53,7 @@
 
 
 ## Summary
-A concise, 2-3 sentence high-level summary of our project. Explain exactly what our tool does, who it is for (e.g., Artemis mission planners, the general public), and how it solves the core challenge of balancing solar illumination and direct Earth-to-Moon communication windows.
+A concise, 2-3 paragraph high-level summary of our project. Explain exactly what our tool does, who it is for (e.g., Artemis mission planners, the general public), and how it solves the core challenge of balancing solar illumination and direct Earth-to-Moon communication windows.
 
 ## Project Demonstration
 *   **Live Demo Link:** [Insert our URL if hosted, e.g., GitHub Pages / Vercel]
