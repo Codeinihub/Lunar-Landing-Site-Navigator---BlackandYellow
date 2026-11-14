@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Landing Site Navigator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">LUNAR<span> NAVIGATOR</span></div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#mission">Mission</a>
+            <a href="#navigator">Navigator</a>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <p class="tag">LUNAR EXPLORATION PROJECT</p>
+
+        <h1>FIND THE NEXT<br>
+        <span>LANDING SITE.</span></h1>
+
+        <p class="description">
+            Explore potential lunar landing locations using
+            scientific data and geographical analysis.
+        </p>
+
+        <a href="#navigator" class="button">EXPLORE THE MOON ↗</a>
+    </section>
+
+    <section class="mission" id="mission">
+        <h2>OUR MISSION</h2>
+        <p>
+            The Lunar Landing Site Navigator aims to identify
+            promising lunar landing locations by analyzing
+            geographical conditions and environmental factors.
+        </p>
+    </section>
+
+    <section class="navigator" id="navigator">
+        <h2>LANDING SITE NAVIGATOR</h2>
+        <p>Enter a location to begin your exploration.</p>
+
+        <div class="search-box">
+            <input type="text" id="locationInput"
+            placeholder="Enter lunar coordinates or location">
+
+            <button onclick="searchLocation()">SEARCH</button>
+        </div>
+
+        <div id="result">
+            Awaiting exploration coordinates...
+        </div>
+    </section>
+
+    <footer>
+        <p> LUNAR NAVIGATOR © 2026 | SPACE EXPLORATION</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
