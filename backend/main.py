@@ -1,15 +1,15 @@
 
 import requests
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI(title="Earth Trend Detective API")
 
 
 class PowerRequest(BaseModel):
     temporal_resolution: Literal["daily", "monthly", "hourly"] = "daily"
-    latitude: float = Field(ge=-90, le=90)
-    longitude: float = Field(ge=-180, le=-180)
+    latitude: float = Field(ge=-90, le=90) = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180) = Field(ge=-180, le=-180)
     start_year: int
     end_year: int
     parameter: list[str] = Field(min_length=1, max_length=20)
@@ -33,6 +33,11 @@ def get_power_data(request: PowerRequest):
             status_code=400,
             detail="Start year must be before end year"
         )
+    if request.start_year < 1981:
+        raise HTTPException(
+            status_code=400,
+            detail="NASA POWER daily data starts in 1981"
+        )
 
     url = (f"https://power.larc.nasa.gov/api/temporal/{requests.temporal_resolution}/point")
 
@@ -55,6 +60,11 @@ def get_power_data(request: PowerRequest):
         measurements = result["properties"]["parameter"][
             request.parameter
         ]
+        if not measurements:
+            raise HTTPException(
+                        status_code=404,
+                        detail="No measurements returned for this location"
+                    )
 
         # Convert NASA's date/value dictionary into a list
         data = []
@@ -64,12 +74,19 @@ def get_power_data(request: PowerRequest):
                 "date": date,
                 "value": None if value == -999 else value
             })
-
+        if not any(item["value"]is not None for item in data):
+            raise HTTPException(
+                status_code=404,
+                detail="No valid measurements available"
+            )
         return {
             "source": "NASA POWER",
             "parameter": request.parameter,
             "latitude": request.latitude,
             "longitude": request.longitude,
+            "period": {
+                "start": request.start_year,
+                "end": request.end_year},
             "data": data
         }
 
