@@ -125,8 +125,17 @@ from pydantic import BaseModel, Field
 from typing import Literal
 import pandas as pd
 
+# from data.nasa_client import fetch_power_data
+# from data.preprocessing import preprocess_data, get_data_quality, aggregate_annual
 from data.nasa_client import fetch_power_data
-from data.preprocessing import preprocess_data, get_data_quality, aggregate_annual
+
+from data.preprocessing import (
+    preprocess_data,
+    get_data_quality,
+    aggregate_annual
+)
+
+from analysis.pipeline import analyze_annual_trends
 
 # --------------------------------------------------
 # 1. Initialize FastAPI
@@ -169,6 +178,19 @@ class PowerRequest(BaseModel):
         max_length=20
     )
 
+class TrendRequest(PowerRequest):
+
+    min_completeness: float = Field(
+        default=90.0,
+        ge=0,
+        le=100
+    )
+
+    alpha: float = Field(
+        default=0.05,
+        gt=0,
+        lt=1
+    )
 
 # --------------------------------------------------
 # 4. Helper function to convert DataFrame to JSON
@@ -288,3 +310,100 @@ def get_power_data(request: PowerRequest):
             status_code=502,
             detail=str(error)
         )
+
+# --------------------------------------------------
+# 7. NASA POWER + Complete Trend Analysis endpoint
+# --------------------------------------------------
+
+@app.post("/analysis/trends")
+def analyze_trends(request: TrendRequest):
+
+    # Validate date range
+    if request.start_year > request.end_year:
+        raise HTTPException(
+            status_code=400,
+            detail="Start year must not exceed end year."
+        )
+
+    try:
+
+        # STEP 1: Retrieve NASA POWER data
+        raw_result = fetch_power_data(
+            latitude=request.latitude,
+            longitude=request.longitude,
+            start_year=request.start_year,
+            end_year=request.end_year,
+            parameters=request.parameter,
+            temporal_resolution=request.temporal_resolution,
+            community="RE"
+        )
+
+        analyzed_parameters = {}
+
+        # STEP 2: Analyze each environmental parameter
+        for parameter, measurements in raw_result["data"].items():
+
+            # Clean raw measurements
+            df = preprocess_data(measurements)
+
+            # Calculate original-resolution data quality
+            quality = get_data_quality(df)
+
+            # Aggregate measurements into annual averages
+            annual_df = aggregate_annual(
+                df,
+                temporal_resolution=request.temporal_resolution,
+                min_completeness=request.min_completeness
+            )
+
+            # Run linear regression, Sen's slope,
+            # and Mann-Kendall
+            trend_results = analyze_annual_trends(
+                annual_df,
+                alpha=request.alpha
+            )
+
+            # Convert annual DataFrame into JSON-compatible records
+            annual_records = (
+                annual_df.astype(object)
+                .where(pd.notna(annual_df), None)
+                .to_dict(orient="records")
+            )
+
+            # Store results for this parameter
+            analyzed_parameters[parameter] = {
+                "quality": jsonable_encoder(quality),
+                "annual_data": jsonable_encoder(annual_records),
+                "trend_analysis": jsonable_encoder(trend_results)
+            }
+
+        # STEP 3: Return combined results
+        return {
+            "source": raw_result["source"],
+            "location": {
+                "latitude": raw_result["latitude"],
+                "longitude": raw_result["longitude"]
+            },
+            "temporal_resolution": raw_result["temporal_resolution"],
+            "period": raw_result["period"],
+            "settings": {
+                "min_completeness": request.min_completeness,
+                "significance_level": request.alpha
+            },
+            "parameters": analyzed_parameters
+        }
+
+    except ValueError as error:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
+
+    except RuntimeError as error:
+
+        raise HTTPException(
+            status_code=502,
+            detail=str(error)
+        )
+
