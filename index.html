@@ -4,14 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Earth Detective: Discover Earth's Hidden Patterns</title>
+
     <link rel="stylesheet" href="style.css">
+
+    <!-- Leaflet map library -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
 </head>
 
 <body>
 
     <header>
         <div class="logo">EARTH<span>DETECTIVE</span></div>
+
         <nav>
             <a href="#home">Home</a>
             <a href="#mission">Mission</a>
@@ -22,45 +31,122 @@
     <section class="hero" id="home">
         <p class="tag">EARTH MAP PROJECT</p>
 
-        <h1>FIND THE NEXT<br>
-        <span>GEOLOCATION.</span></h1>
+        <h1>
+            FIND THE NEXT<br>
+            <span>GEOLOCATION.</span>
+        </h1>
 
         <p class="description">
-            Explore Earth's weather and environmental patterns using scientific data, including rainfall, 
-            cloud coverage, temperature, and geographical analysis.
+            Explore Earth's weather and environmental patterns using
+            scientific data, including rainfall, cloud coverage,
+            temperature, and geographical analysis.
         </p>
 
-        <a href="#navigator" class="button">EXPLORE THE EARTH ↗</a>
+        <a href="#navigator" class="button">
+            EXPLORE THE EARTH ↗
+        </a>
     </section>
 
     <section class="mission" id="mission">
         <h2>OUR MISSION</h2>
+
         <p>
-            The Earth Data Navigator aims to analyze environmental patterns across the globe by examining geographical conditions and scientific data, including rainfall,
-             cloud coverage, temperature, and other atmospheric factors.
+            The Earth Data Navigator aims to analyze environmental
+            patterns across the globe by examining geographical
+            conditions and scientific data, including rainfall,
+            cloud coverage, temperature, and other atmospheric factors.
         </p>
     </section>
 
     <section class="navigator" id="navigator">
-        <h2>EARTH MAP  NAVIGATOR</h2>
-        <p>Enter a location to begin your exploration.</p>
 
+        <h2>EARTH MAP NAVIGATOR</h2>
+
+        <p>Select a time range and geographical region to begin exploring.</p>
+
+        <!-- TIME RANGE -->
+        <div class="time-selection">
+
+            <div class="time-field">
+                <label for="startTime">START DATE AND TIME</label>
+                <input type="datetime-local" id="startTime">
+            </div>
+
+            <div class="time-field">
+                <label for="endTime">END DATE AND TIME</label>
+                <input type="datetime-local" id="endTime">
+            </div>
+
+        </div>
+
+        <!-- REGION MAP DROPDOWN -->
+        <div class="region-selector">
+
+            <label>SELECT REGION</label>
+
+            <button
+                type="button"
+                id="regionToggle"
+                class="region-button"
+                aria-expanded="false"
+            >
+                <span id="regionText">Choose a geographical region</span>
+                <span id="dropdownArrow">▼</span>
+            </button>
+
+            <div id="mapDropdown" class="map-dropdown">
+
+                <p class="map-instructions">
+                    Click and drag across the map to select a geographical area.
+                </p>
+
+                <div id="worldMap"></div>
+
+                <p id="coordinates">
+                    No region selected.
+                </p>
+
+                <button
+                    type="button"
+                    id="clearRegion"
+                    class="clear-button"
+                >
+                    CLEAR SELECTION
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- LOCATION SEARCH -->
         <div class="search-box">
-            <input type="text" id="locationInput"
-            placeholder="Enter lunar coordinates or location">
 
-            <button onclick="searchLocation()">SEARCH</button>
+            <input
+                type="text"
+                id="locationInput"
+                placeholder="Enter a location (optional)"
+            >
+
+            <button type="button" onclick="searchLocation()">
+                SEARCH
+            </button>
+
         </div>
 
         <div id="result">
             Awaiting exploration coordinates...
         </div>
+
     </section>
 
     <footer>
-        <p> EARTH DETECTIVE © 2026 | SPACE EXPLORATION</p>
+        <p>EARTH DETECTIVE © 2026 | EARTH DATA EXPLORATION</p>
     </footer>
 
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Your JavaScript -->
     <script src="script.js"></script>
 
 </body>
