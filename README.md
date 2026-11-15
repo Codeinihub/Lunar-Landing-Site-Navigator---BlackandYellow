@@ -1,4 +1,4 @@
-# Lunar-Landing-Site-Navigator---BlackandYellow
+# EarthDetective---BlackandYellow---BlackandYellow
 
 
 [![NASA Space Apps Challenge](https://shields.io)](https://spaceappschallenge.org)
@@ -42,7 +42,7 @@
 
 
 ## Project Name
-
+Earth Detective
 
 ## Summary
 A concise, 2-3 paragraph high-level summary of our project. Explain exactly what our tool does, who it is for (e.g., Artemis mission planners, the general public), and how it solves the core challenge of balancing solar illumination and direct Earth-to-Moon communication windows.

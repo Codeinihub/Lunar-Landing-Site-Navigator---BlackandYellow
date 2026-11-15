@@ -1,11 +1,14 @@
-
-import requests
-from typing import Literal
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
 
-app = FastAPI(title="Earth Trend Detective API")
+from backend.schemas import PowerRequest
+
+from backend.cache import initialize_cache
+
+from backend.services import get_power_data
+
+from backend.retrieval.power import DataRetrievalError
 
 # class PowerRequest(BaseModel):
 #     temporal_resolution: Literal["daily", "monthly", "hourly"] = "daily"
@@ -167,8 +170,7 @@ class PowerRequest(BaseModel):
         "daily", "monthly", "hourly"
     ] = "daily"
 
-    latitude: float = Field(ge=-90, le=90)
-    longitude: float = Field(ge=-180, le=180)
+    initialize_cache()
 
     start_year: int = Field(ge=1981)
     end_year: int = Field(ge=1981)
