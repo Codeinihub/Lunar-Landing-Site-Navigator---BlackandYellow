@@ -1,4 +1,4 @@
-# Lunar-Landing-Site-Navigator---BlackandYellow
+# EarthDetective---BlackandYellow---BlackandYellow
 
 
 [![NASA Space Apps Challenge](https://shields.io)](https://spaceappschallenge.org)
