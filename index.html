@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth Detective: Discover Earth's Hidden Patterns</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">EARTH<span>DETECTIVE</span></div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#mission">Mission</a>
+            <a href="#navigator">Navigator</a>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <p class="tag">EARTH MAP PROJECT</p>
+
+        <h1>FIND THE NEXT<br>
+        <span>GEOLOCATION.</span></h1>
+
+        <p class="description">
+            Explore Earth's weather and environmental patterns using scientific data, including rainfall, 
+            cloud coverage, temperature, and geographical analysis.
+        </p>
+
+        <a href="#navigator" class="button">EXPLORE THE EARTH ↗</a>
+    </section>
+
+    <section class="mission" id="mission">
+        <h2>OUR MISSION</h2>
+        <p>
+            The Earth Data Navigator aims to analyze environmental patterns across the globe by examining geographical conditions and scientific data, including rainfall,
+             cloud coverage, temperature, and other atmospheric factors.
+        </p>
+    </section>
+
+    <section class="navigator" id="navigator">
+        <h2>EARTH MAP  NAVIGATOR</h2>
+        <p>Enter a location to begin your exploration.</p>
+
+        <div class="search-box">
+            <input type="text" id="locationInput"
+            placeholder="Enter lunar coordinates or location">
+
+            <button onclick="searchLocation()">SEARCH</button>
+        </div>
+
+        <div id="result">
+            Awaiting exploration coordinates...
+        </div>
+    </section>
+
+    <footer>
+        <p> EARTH DETECTIVE © 2026 | SPACE EXPLORATION</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
