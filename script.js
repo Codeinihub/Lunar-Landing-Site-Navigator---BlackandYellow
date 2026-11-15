@@ -89,6 +89,8 @@ let selectionRectangle = null;
 let locationMarker = null;
 let startPoint = null;
 let selectedBounds = null;
+let isSelectingRegion = false;
+let dragMoved = false;
 
 
 // ===================================
@@ -138,7 +140,8 @@ function initializeMap() {
         minZoom: 2,
         maxZoom: 7,
         maxBounds: [[-85, -180], [85, 180]],
-        maxBoundsViscosity: 1
+        maxBoundsViscosity: 1,
+        dragging: false
     });
 
     // Add map imagery
@@ -189,37 +192,16 @@ function initializeMap() {
 
 
     // ===================================
-    // CLICK TO PLACE POINTER
-    // ===================================
-
-    map.on("click", function(e) {
-
-        if (locationMarker) {
-            map.removeLayer(locationMarker);
-        }
-
-        locationMarker = L.marker(e.latlng).addTo(map);
-
-        locationMarker.bindPopup(`
-            <strong>SELECTED LOCATION</strong><br>
-            Latitude: ${e.latlng.lat.toFixed(4)}°<br>
-            Longitude: ${e.latlng.lng.toFixed(4)}°
-        `).openPopup();
-
-    });
-
-
-    // ===================================
-    // DRAG TO SELECT REGION
+    // CLICK AND DRAG TO SELECT REGION
     // ===================================
 
     map.on("mousedown", function(e) {
 
         if (e.originalEvent.button !== 0) return;
 
+        isSelectingRegion = true;
+        dragMoved = false;
         startPoint = e.latlng;
-
-        map.dragging.disable();
 
         if (selectionRectangle) {
             map.removeLayer(selectionRectangle);
@@ -238,63 +220,119 @@ function initializeMap() {
     });
 
 
-    // Update rectangle while dragging
+    // ===================================
+    // UPDATE RECTANGLE WHILE DRAGGING
+    // ===================================
 
     map.on("mousemove", function(e) {
 
-        if (!startPoint || !selectionRectangle) return;
+        if (!isSelectingRegion || !startPoint) return;
 
-        selectionRectangle.setBounds(
-            L.latLngBounds(startPoint, e.latlng)
-        );
+        if (map.distance(startPoint, e.latlng) > 100) {
+            dragMoved = true;
+        }
+
+        if (selectionRectangle) {
+            selectionRectangle.setBounds(
+                L.latLngBounds(startPoint, e.latlng)
+            );
+        }
 
     });
 
 
-    // Finish selection when mouse is released
+    // ===================================
+    // FINISH REGION SELECTION
+    // ===================================
 
-    document.addEventListener("mouseup", finishSelection);
-}
+    map.on("mouseup", function(e) {
+
+        if (!isSelectingRegion || !startPoint) return;
+
+        isSelectingRegion = false;
+
+        if (dragMoved) {
+
+            const bounds = L.latLngBounds(
+                startPoint,
+                e.latlng
+            );
+
+            selectedBounds = {
+                north: bounds.getNorth().toFixed(2),
+                south: bounds.getSouth().toFixed(2),
+                east: bounds.getEast().toFixed(2),
+                west: bounds.getWest().toFixed(2)
+            };
+
+            coordinates.innerHTML = `
+                <strong>SELECTED REGION</strong><br>
+                North: ${selectedBounds.north}°<br>
+                South: ${selectedBounds.south}°<br>
+                East: ${selectedBounds.east}°<br>
+                West: ${selectedBounds.west}°
+            `;
+
+            regionText.textContent = "Custom Region Selected";
+
+        } else {
+
+            // A click without dragging selects an exact point.
+
+            if (selectionRectangle) {
+                map.removeLayer(selectionRectangle);
+                selectionRectangle = null;
+            }
+
+            selectedBounds = null;
+
+            if (locationMarker) {
+                map.removeLayer(locationMarker);
+            }
+
+            locationMarker = L.marker(startPoint).addTo(map);
+
+            locationMarker.bindPopup(`
+                <strong>SELECTED LOCATION</strong><br>
+                Latitude: ${startPoint.lat.toFixed(4)}°<br>
+                Longitude: ${startPoint.lng.toFixed(4)}°
+            `).openPopup();
+
+            coordinates.innerHTML = `
+                <strong>SELECTED POINT</strong><br>
+                Latitude: ${startPoint.lat.toFixed(4)}°<br>
+                Longitude: ${startPoint.lng.toFixed(4)}°
+            `;
+
+            regionText.textContent = "Exact Location Selected";
+        }
+
+        startPoint = null;
+
+    });
 
 
-// ===================================
-// FINISH REGION SELECTION
-// ===================================
+    // ===================================
+    // HANDLE MOUSE RELEASE OUTSIDE MAP
+    // ===================================
 
-function finishSelection(event) {
+    document.addEventListener("mouseup", function(e) {
 
-    if (!startPoint || !selectionRectangle || !map) return;
+        if (!isSelectingRegion || !startPoint) return;
 
-    const endPoint = map.mouseEventToLatLng(event);
+        if (!map.getContainer().contains(e.target)) {
+            isSelectingRegion = false;
 
-    const lat = Math.max(-85, Math.min(85, endPoint.lat));
-    const lng = Math.max(-180, Math.min(180, endPoint.lng));
+            if (selectionRectangle) {
+                map.removeLayer(selectionRectangle);
+                selectionRectangle = null;
+            }
 
-    const bounds = L.latLngBounds(
-        startPoint,
-        L.latLng(lat, lng)
-    );
+            startPoint = null;
+        }
 
-    selectedBounds = {
-        north: bounds.getNorth().toFixed(2),
-        south: bounds.getSouth().toFixed(2),
-        east: bounds.getEast().toFixed(2),
-        west: bounds.getWest().toFixed(2)
-    };
+    });
 
-    coordinates.innerHTML = `
-        <strong>SELECTED REGION</strong><br>
-        North: ${selectedBounds.north}°<br>
-        South: ${selectedBounds.south}°<br>
-        East: ${selectedBounds.east}°<br>
-        West: ${selectedBounds.west}°
-    `;
-
-    regionText.textContent = "Custom Region Selected";
-
-    startPoint = null;
-
-    map.dragging.enable();
 }
 
 
@@ -315,6 +353,9 @@ clearRegion.addEventListener("click", function() {
     }
 
     selectedBounds = null;
+    startPoint = null;
+    isSelectingRegion = false;
+    dragMoved = false;
 
     coordinates.textContent = "No region selected.";
 
