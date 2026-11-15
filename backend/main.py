@@ -1,23 +1,33 @@
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 
 from backend.schemas import PowerRequest
-from backend.retrival import fetch_power_data
+
+from backend.cache import initialize_cache
+
+from backend.services import get_power_data
+
+from backend.retrieval.power import DataRetrievalError
 
 
-from backend.cache import (
-    initialize_cache,
-    get_or_fetch_data
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    initialize_cache()
+
+    yield
+
+
+app = FastAPI(
+    title="Earth Trend Detective API",
+    lifespan=lifespan
 )
-
-
-initialize_cache()
-
-app = FastAPI(title="Earth Trend Detective API")
 
 
 @app.get("/")
 def home():
+
     return {
         "message": "Earth Trend Detective API is running!"
     }
@@ -25,19 +35,29 @@ def home():
 
 @app.get("/health")
 def health():
+
     return {
         "status": "healthy"
     }
 
 
 @app.post("/data/power")
-def get_power_data(request: PowerRequest):
+def power_endpoint(request: PowerRequest):
 
-    data = get_or_fetch_data(
-        namespace="nasa_power",
-        parameters=request.model_dump(),
-        fetch_function=lambda: fetch_power_data(request)
-    )
+    try:
 
-    return data
+        return get_power_data(request)
 
+    except ValueError as error:
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
+
+    except DataRetrievalError as error:
+
+        raise HTTPException(
+            status_code=502,
+            detail=str(error)
+        )
