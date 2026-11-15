@@ -1,0 +1,170 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: #090909;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 8%;
+    border-bottom: 1px solid #292929;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 21px;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    color: #f5c400;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 25px;
+    font-size: 14px;
+}
+
+nav a:hover {
+    color: #f5c400;
+}
+
+.hero {
+    min-height: 570px;
+    padding: 130px 10%;
+    background: linear-gradient(
+        90deg,
+        #090909 30%,
+        #181818 100%
+    );
+}
+
+.tag {
+    color: #f5c400;
+    letter-spacing: 4px;
+    font-size: 12px;
+    margin-bottom: 25px;
+}
+
+h1 {
+    font-size: clamp(45px, 7vw, 85px);
+    line-height: 1.05;
+    font-weight: 900;
+}
+
+h1 span {
+    color: #f5c400;
+}
+
+.description {
+    color: #aaa;
+    max-width: 480px;
+    line-height: 1.7;
+    margin: 25px 0;
+}
+
+.button {
+    display: inline-block;
+    background: #f5c400;
+    color: black;
+    padding: 15px 25px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background: white;
+}
+
+.mission, .navigator {
+    padding: 90px 10%;
+    border-top: 1px solid #292929;
+}
+
+h2 {
+    color: #f5c400;
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.mission p, .navigator p {
+    color: #aaa;
+    line-height: 1.8;
+    max-width: 650px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    max-width: 600px;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    background: #191919;
+    border: 1px solid #444;
+    color: white;
+}
+
+button {
+    padding: 15px 25px;
+    background: #f5c400;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 25px;
+    padding: 20px;
+    background: #191919;
+    border-left: 3px solid #f5c400;
+    color: #ccc;
+    max-width: 600px;
+}
+
+footer {
+    text-align: center;
+    padding: 30px;
+    border-top: 1px solid #292929;
+    color: #777;
+    font-size: 12px;
+}
+
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    nav a {
+        margin: 0 8px;
+    }
+
+    .hero {
+        padding: 100px 7%;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+}
