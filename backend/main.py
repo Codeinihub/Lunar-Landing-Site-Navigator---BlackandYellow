@@ -38,6 +38,11 @@ def get_power_data(request: PowerRequest):
             status_code=400,
             detail="Start year must be before end year"
         )
+    if request.start_year < 1981:
+        raise HTTPException(
+            status_code=400,
+            detail="NASA POWER daily data starts in 1981"
+        )
 
     url = (
         f"https://power.larc.nasa.gov/api/temporal/"
