@@ -1,5 +1,7 @@
 
-const API_URL = "http://127.0.0.1:8000";
+
+const API_URL = "https://earthdetective-blackandyellow.onrender.com";
+
 
 let map = null;
 let resultsMap = null;
