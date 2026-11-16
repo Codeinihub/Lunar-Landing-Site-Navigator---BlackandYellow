@@ -6,6 +6,7 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
+from pydantic import Field
 
 from backend.schemas import PowerRequest
 from backend.cache import initialize_cache
@@ -47,9 +48,6 @@ app.add_middleware(
 # ==================================================
 # 3. TREND ANALYSIS SETTINGS
 # ==================================================
-
-from pydantic import BaseModel, Field
-
 
 class TrendRequest(PowerRequest):
 
@@ -97,38 +95,111 @@ def dataframe_to_records(df):
     return records
 
 
-def prepare_measurements(measurements):
+# ==================================================
+# 5. PREPARE NASA POWER MEASUREMENTS
+# ==================================================
+
+def prepare_measurements(measurements, temporal_resolution):
 
     df = pd.DataFrame(measurements)
 
     if df.empty:
-        raise ValueError("No measurements were returned.")
+        raise ValueError(
+            "No measurements were returned."
+        )
 
     if "date" not in df.columns or "value" not in df.columns:
-        raise ValueError("NASA data is missing date or value columns.")
+        raise ValueError(
+            "NASA data is missing date or value columns."
+        )
+
+    # -----------------------------------
+    # IDENTIFY NASA DATE FORMAT
+    # -----------------------------------
+
+    date_formats = {
+        "monthly": "%Y%m",
+        "daily": "%Y%m%d",
+        "hourly": "%Y%m%d%H"
+    }
+
+    if temporal_resolution not in date_formats:
+
+        raise ValueError(
+            f"Unsupported temporal resolution: {temporal_resolution}"
+        )
+
+    df["date"] = df["date"].astype(str).str.strip()
+
+    # -----------------------------------
+    # REMOVE MONTHLY ANNUAL SUMMARIES
+    # -----------------------------------
+
+    if temporal_resolution == "monthly":
+
+        valid_months = [
+            f"{month:02d}"
+            for month in range(1, 13)
+        ]
+
+        df = df[
+            df["date"].str.fullmatch(r"\d{6}")
+            & df["date"].str[-2:].isin(valid_months)
+        ].copy()
+
+    # -----------------------------------
+    # PARSE DATES
+    # -----------------------------------
 
     df["date"] = pd.to_datetime(
-        df["date"].astype(str),
-        format="mixed",
+        df["date"],
+        format=date_formats[temporal_resolution],
         errors="coerce"
     )
+
+    # -----------------------------------
+    # CONVERT MEASUREMENT VALUES
+    # -----------------------------------
 
     df["value"] = pd.to_numeric(
         df["value"],
         errors="coerce"
     )
 
-    df = df.dropna(
-        subset=["date", "value"]
+    # NASA POWER missing data marker
+
+    df["value"] = df["value"].replace(
+        -999,
+        float("nan")
     )
 
-    if df.empty:
-        raise ValueError("No valid measurements are available.")
+    # -----------------------------------
+    # REMOVE INVALID DATES
+    # -----------------------------------
 
-    df = df.sort_values("date").reset_index(drop=True)
+    # Keep missing measurements so data
+    # completeness can be calculated correctly.
+
+    df = df.dropna(
+        subset=["date"]
+    )
+
+    if df.empty or df["value"].notna().sum() == 0:
+
+        raise ValueError(
+            "No valid measurements are available."
+        )
+
+    df = df.sort_values(
+        "date"
+    ).reset_index(drop=True)
 
     return df
 
+
+# ==================================================
+# 6. DATA QUALITY CALCULATION
+# ==================================================
 
 def calculate_data_quality(df):
 
@@ -148,12 +219,14 @@ def calculate_data_quality(df):
         "total_observations": total,
         "valid_observations": valid,
         "missing_observations": missing,
-        "completeness_percent": round(completeness, 2)
+        "completeness_percent": round(
+            completeness, 2
+        )
     }
 
 
 # ==================================================
-# 5. ANNUAL DATA AGGREGATION
+# 7. ANNUAL DATA AGGREGATION
 # ==================================================
 
 def aggregate_annual(
@@ -169,6 +242,10 @@ def aggregate_annual(
     annual_rows = []
 
     for year, group in data.groupby("year"):
+
+        # -----------------------------------
+        # EXPECTED MEASUREMENTS PER YEAR
+        # -----------------------------------
 
         if temporal_resolution == "monthly":
 
@@ -190,6 +267,10 @@ def aggregate_annual(
                 else 365
             )
 
+        # -----------------------------------
+        # VALID DATA
+        # -----------------------------------
+
         valid_values = group["value"].dropna()
 
         valid_count = len(valid_values)
@@ -198,11 +279,19 @@ def aggregate_annual(
             valid_count / expected
         ) * 100
 
+        # -----------------------------------
+        # ANNUAL AVERAGE
+        # -----------------------------------
+
         annual_average = (
             float(valid_values.mean())
             if valid_count > 0
             else None
         )
+
+        # -----------------------------------
+        # STORE ANNUAL SUMMARY
+        # -----------------------------------
 
         annual_rows.append({
 
@@ -230,7 +319,7 @@ def aggregate_annual(
 
 
 # ==================================================
-# 6. BASIC ENDPOINTS
+# 8. BASIC ENDPOINTS
 # ==================================================
 
 @app.get("/")
@@ -250,7 +339,7 @@ def health():
 
 
 # ==================================================
-# 7. NASA POWER DATA ENDPOINT
+# 9. NASA POWER DATA ENDPOINT
 # ==================================================
 
 @app.post("/data/powers")
@@ -265,13 +354,25 @@ def retrieve_power_data(request: PowerRequest):
 
     try:
 
+        # -----------------------------------
+        # RETRIEVE NASA POWER DATA
+        # -----------------------------------
+
         raw_result = get_power_data(request)
 
         processed_data = {}
 
         for parameter, measurements in raw_result["data"].items():
 
-            df = prepare_measurements(measurements)
+            # Convert measurements using
+            # the correct NASA timestamp format.
+
+            df = prepare_measurements(
+                measurements,
+                request.temporal_resolution
+            )
+
+            # Calculate data quality
 
             quality = calculate_data_quality(df)
 
@@ -287,6 +388,10 @@ def retrieve_power_data(request: PowerRequest):
                 }
 
             }
+
+        # -----------------------------------
+        # RETURN DATA TO FRONTEND
+        # -----------------------------------
 
         return {
 
@@ -330,7 +435,7 @@ def retrieve_power_data(request: PowerRequest):
 
 
 # ==================================================
-# 8. COMPLETE ENVIRONMENTAL TREND ANALYSIS
+# 10. COMPLETE ENVIRONMENTAL TREND ANALYSIS
 # ==================================================
 
 @app.post("/analysis/trends")
@@ -345,21 +450,30 @@ def analyze_trends(request: TrendRequest):
 
     try:
 
+        # -----------------------------------
         # STEP 1: RETRIEVE NASA POWER DATA
+        # -----------------------------------
 
         raw_result = get_power_data(request)
 
         analyzed_parameters = {}
 
+        # -----------------------------------
         # STEP 2: PROCESS EACH PARAMETER
+        # -----------------------------------
 
         for parameter, measurements in raw_result["data"].items():
 
-            df = prepare_measurements(measurements)
+            df = prepare_measurements(
+                measurements,
+                request.temporal_resolution
+            )
 
             quality = calculate_data_quality(df)
 
+            # -----------------------------------
             # STEP 3: AGGREGATE INTO ANNUAL DATA
+            # -----------------------------------
 
             annual_df = aggregate_annual(
                 df,
@@ -367,7 +481,9 @@ def analyze_trends(request: TrendRequest):
                 min_completeness=request.min_completeness
             )
 
-            # STEP 4: RUN STATISTICAL ANALYSIS
+            # -----------------------------------
+            # STEP 4: SELECT ELIGIBLE YEARS
+            # -----------------------------------
 
             eligible_df = annual_df[
                 annual_df["eligible_for_trend"]
@@ -381,12 +497,18 @@ def analyze_trends(request: TrendRequest):
                     f"with sufficient data are required."
                 )
 
+            # -----------------------------------
+            # STEP 5: RUN STATISTICAL ANALYSIS
+            # -----------------------------------
+
             trend_results = analyze_annual_trends(
                 eligible_df,
                 alpha=request.alpha
             )
 
-            # STEP 5: PREPARE GRAPH DATA
+            # -----------------------------------
+            # STEP 6: PREPARE GRAPH DATA
+            # -----------------------------------
 
             annual_records = dataframe_to_records(
                 annual_df
@@ -412,7 +534,9 @@ def analyze_trends(request: TrendRequest):
 
             }
 
-        # STEP 6: RETURN RESULTS TO FRONTEND
+        # -----------------------------------
+        # STEP 7: RETURN RESULTS TO FRONTEND
+        # -----------------------------------
 
         return {
 

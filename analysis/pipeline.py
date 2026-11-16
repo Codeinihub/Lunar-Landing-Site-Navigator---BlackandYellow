@@ -95,12 +95,12 @@ def analyze_annual_trends(annual_data, alpha=0.05):
         )
 
     # 3. Run the three analysis methods
-    linear_results = calculate_linear_regression(annual_data)
+    linear_results = calculate_linear_regression(eligible_data)
 
-    sen_results = calculate_sens_slope(annual_data)
+    sen_results = calculate_sens_slope(eligible_data)
 
     mann_kendall_results = calculate_mann_kendall(
-        annual_data,
+        eligible_data,
         alpha=alpha
     )
 

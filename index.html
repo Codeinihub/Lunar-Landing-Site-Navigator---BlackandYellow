@@ -9,7 +9,6 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- Leaflet map library -->
     <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -18,21 +17,19 @@
 
 <body>
 
-    <!-- HEADER -->
-    <header>
-        <div class="logo">EARTH<span>DETECTIVE</span></div>
+<header>
+    <div class="logo">EARTH<span>DETECTIVE</span></div>
 
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#mission">Mission</a>
-            <a href="#navigator">Navigator</a>
-        </nav>
-    </header>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#mission">Mission</a>
+        <a href="#navigator">Navigator</a>
+    </nav>
+</header>
 
+<main id="homePage">
 
-    <!-- HERO SECTION -->
     <section class="hero" id="home">
-
         <p class="tag">EARTH MAP PROJECT</p>
 
         <h1>
@@ -49,13 +46,9 @@
         <a href="#navigator" class="button">
             EXPLORE THE EARTH ↗
         </a>
-
     </section>
 
-
-    <!-- MISSION SECTION -->
     <section class="mission" id="mission">
-
         <h2>OUR MISSION</h2>
 
         <p>
@@ -64,53 +57,59 @@
             conditions and scientific data, including rainfall,
             cloud coverage, temperature, and other atmospheric factors.
         </p>
-
     </section>
 
-
-    <!-- NAVIGATOR SECTION -->
     <section class="navigator" id="navigator">
 
         <h2>EARTH MAP NAVIGATOR</h2>
 
         <p>
-            Select a date range and geographical region
-            to begin exploring.
+            Select a date range, environmental parameter,
+            and geographical location to begin exploring.
         </p>
 
-
-        <!-- DATE RANGE -->
         <div class="time-selection">
 
             <div class="time-field">
-
                 <label for="startTime">START DATE</label>
-
-                <input
-                    type="date"
-                    id="startTime"
-                    required
-                >
-
+                <input type="date" id="startTime" required>
             </div>
 
-
             <div class="time-field">
-
                 <label for="endTime">END DATE</label>
-
-                <input
-                    type="date"
-                    id="endTime"
-                    required
-                >
-
+                <input type="date" id="endTime" required>
             </div>
 
         </div>
 
+        <div class="selection-options">
 
-        <!-- REGION SELECTOR -->
+            <div class="option-field">
+                <label for="parameterSelect">ENVIRONMENTAL PARAMETER</label>
+
+                <select id="parameterSelect">
+                    <option value="T2M">Temperature</option>
+                    <option value="T2M_MAX">Maximum Temperature</option>
+                    <option value="T2M_MIN">Minimum Temperature</option>
+                    <option value="PRECTOTCORR">Rainfall</option>
+                    <option value="RH2M">Relative Humidity</option>
+                    <option value="WS10M">Wind Speed</option>
+                    <option value="ALLSKY_SFC_SW_DWN">Solar Radiation</option>
+                </select>
+            </div>
+
+            <div class="option-field">
+                <label for="resolutionSelect">DATA RESOLUTION</label>
+
+                <select id="resolutionSelect">
+                    <option value="daily">Daily</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="hourly">Hourly</option>
+                </select>
+            </div>
+
+        </div>
+
         <div class="region-selector">
 
             <label>SELECT REGION</label>
@@ -121,30 +120,24 @@
                 class="region-button"
                 aria-expanded="false"
             >
-
                 <span id="regionText">
                     Choose a geographical region
                 </span>
 
                 <span id="dropdownArrow">▼</span>
-
             </button>
 
-
-            <!-- MAP DROPDOWN -->
             <div id="mapDropdown" class="map-dropdown">
 
                 <p class="map-instructions">
-                    Click on the map to select an exact location.
-                    Left-click and drag to select a geographical area.
+                    Click the map to select a point.
+                    Left-click and drag to select a region.
                     Right-click and drag to move the map.
                 </p>
 
                 <div id="worldMap"></div>
 
-                <p id="coordinates">
-                    No region selected.
-                </p>
+                <p id="coordinates">No region selected.</p>
 
                 <button
                     type="button"
@@ -155,20 +148,18 @@
                 </button>
 
             </div>
-
         </div>
 
-
-        <!-- LOCATION SEARCH -->
         <div class="search-box">
 
             <input
                 type="text"
                 id="locationInput"
-                placeholder="Enter a location (optional)"
+                placeholder="Location name (optional)"
             >
 
             <button
+                id="searchButton"
                 type="button"
                 onclick="searchLocation()"
             >
@@ -177,31 +168,169 @@
 
         </div>
 
-
-        <!-- SEARCH RESULTS -->
         <div id="result">
             Awaiting exploration coordinates...
         </div>
 
     </section>
 
+</main>
 
-    <!-- FOOTER -->
-    <footer>
+<!-- RESULTS DASHBOARD -->
 
-        <p>
-            EARTH DETECTIVE © 2026 |
-            EARTH DATA EXPLORATION
-        </p>
+<main id="resultsPage" class="hidden">
 
-    </footer>
+    <section class="dashboard-header">
 
+        <button id="backButton" class="back-button">
+            ← BACK TO SEARCH
+        </button>
 
-    <!-- LEAFLET JAVASCRIPT -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <div>
+            <p class="tag">EARTH DATA ANALYSIS</p>
+            <h1>EXPLORATION <span>RESULTS.</span></h1>
+            <p id="dashboardDateRange" class="dashboard-date"></p>
+        </div>
 
-    <!-- PROJECT JAVASCRIPT -->
-    <script src="script.js"></script>
+    </section>
+
+    <section class="dashboard-content">
+
+        <div class="dashboard-top">
+
+            <div class="dashboard-map-section">
+
+                <div class="panel-heading">
+                    <h2>GEOGRAPHICAL LOCATION</h2>
+                    <span id="mapLocationLabel">Selected location</span>
+                </div>
+
+                <div id="resultsMap"></div>
+
+            </div>
+
+            <aside class="statistics-panel">
+
+                <h2>ANALYSIS SUMMARY</h2>
+
+                <div class="stat-item">
+                    <span>PARAMETER</span>
+                    <strong id="summaryParameter">--</strong>
+                </div>
+
+                <div class="stat-item">
+                    <span>DATA RESOLUTION</span>
+                    <strong id="summaryResolution">--</strong>
+                </div>
+
+                <div class="stat-item">
+                    <span>COORDINATES</span>
+                    <strong id="summaryCoordinates">--</strong>
+                </div>
+
+                <div class="stat-item">
+                    <span>TREND DIRECTION</span>
+                    <strong id="summaryDirection">--</strong>
+                </div>
+
+                <div class="stat-item">
+                    <span>MANN-KENDALL P-VALUE</span>
+                    <strong id="summaryPValue">--</strong>
+                </div>
+
+                <div class="stat-item">
+                    <span>DATA COMPLETENESS</span>
+                    <strong id="summaryCompleteness">--</strong>
+                </div>
+
+                <div id="significanceStatus" class="significance-status">
+                    Awaiting analysis
+                </div>
+
+            </aside>
+
+        </div>
+
+        <div class="graphs-heading">
+            <p class="tag">STATISTICAL METHODS</p>
+            <h2>ENVIRONMENTAL TREND ANALYSIS</h2>
+            <p>
+                These graphs use the annual observations returned by
+                the NASA POWER data analysis.
+            </p>
+        </div>
+
+        <div class="graph-grid">
+
+            <div class="graph-card">
+                <h3>MANN-KENDALL TEST</h3>
+                <p class="graph-description">
+                    Annual observations and statistical trend assessment.
+                </p>
+                <div class="chart-container">
+                    <canvas id="mannKendallChart"></canvas>
+                </div>
+                <div id="mannKendallDetails" class="graph-details"></div>
+            </div>
+
+            <div class="graph-card">
+                <h3>LINEAR REGRESSION</h3>
+                <p class="graph-description">
+                    Linear trend fitted to annual environmental observations.
+                </p>
+                <div class="chart-container">
+                    <canvas id="linearChart"></canvas>
+                </div>
+                <div id="linearDetails" class="graph-details"></div>
+            </div>
+
+            <div class="graph-card">
+                <h3>SEN'S SLOPE</h3>
+                <p class="graph-description">
+                    Robust estimate of the rate of change over time.
+                </p>
+                <div class="chart-container">
+                    <canvas id="sensChart"></canvas>
+                </div>
+                <div id="sensDetails" class="graph-details"></div>
+            </div>
+
+        </div>
+
+        <div class="data-section">
+
+            <h2>ANNUAL DATA</h2>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>YEAR</th>
+                            <th>ANNUAL AVERAGE</th>
+                            <th>VALID OBSERVATIONS</th>
+                            <th>COMPLETENESS</th>
+                            <th>TREND ELIGIBILITY</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="annualDataTable">
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    <p>EARTH DETECTIVE © 2026 | EARTH DATA EXPLORATION</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
