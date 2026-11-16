@@ -1,6 +1,6 @@
 
 from contextlib import asynccontextmanager
-
+import calendar
 import pandas as pd
 
 from fastapi import FastAPI, HTTPException
@@ -247,6 +247,7 @@ def aggregate_annual(
         # EXPECTED MEASUREMENTS PER YEAR
         # -----------------------------------
 
+        
         if temporal_resolution == "monthly":
 
             expected = 12
@@ -254,18 +255,15 @@ def aggregate_annual(
         elif temporal_resolution == "hourly":
 
             expected = (
-                8784
-                if pd.Timestamp(year=year).is_leap_year
-                else 8760
+                8784 if calendar.isleap(int(year)) else 8760
             )
 
         else:
 
             expected = (
-                366
-                if pd.Timestamp(year=year).is_leap_year
-                else 365
+                366 if calendar.isleap(int(year)) else 365
             )
+
 
         # -----------------------------------
         # VALID DATA
