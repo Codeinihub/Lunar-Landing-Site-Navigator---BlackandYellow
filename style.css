@@ -47,11 +47,7 @@ nav a:hover {
 .hero {
     min-height: 570px;
     padding: 130px 10%;
-    background: linear-gradient(
-        90deg,
-        #090909 30%,
-        #181818 100%
-    );
+    background: linear-gradient(90deg, #090909 30%, #181818 100%);
 }
 
 .tag {
@@ -109,7 +105,7 @@ h2 {
     max-width: 650px;
 }
 
-/* TIME RANGE */
+/* DATE RANGE */
 
 .time-selection {
     display: grid;
@@ -133,7 +129,9 @@ h2 {
     letter-spacing: 1px;
 }
 
-input {
+/* DATE INPUTS */
+
+.time-field input[type="date"] {
     width: 100%;
     min-width: 0;
     padding: 15px;
@@ -143,6 +141,7 @@ input {
     border-radius: 5px;
     font-family: Arial, sans-serif;
     color-scheme: dark;
+    cursor: pointer;
 }
 
 /* REGION SELECTOR */
@@ -240,6 +239,17 @@ input {
     max-width: 650px;
 }
 
+.search-box input[type="text"] {
+    width: 100%;
+    min-width: 0;
+    padding: 15px;
+    background: #191919;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+}
+
 button {
     padding: 15px 25px;
     background: #f5c400;
@@ -280,7 +290,6 @@ footer {
 /* MOBILE */
 
 @media (max-width: 600px) {
-
     header {
         flex-direction: column;
         gap: 20px;

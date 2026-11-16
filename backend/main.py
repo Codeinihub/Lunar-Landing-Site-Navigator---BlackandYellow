@@ -1,184 +1,55 @@
+
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
-
-from backend.schemas import PowerRequest
-
-from backend.cache import initialize_cache
-
-from backend.services import get_power_data
-
-from backend.retrieval.power import DataRetrievalError
-
-# class PowerRequest(BaseModel):
-#     temporal_resolution: Literal["daily", "monthly", "hourly"] = "daily"
-
-#     latitude: float = Field(ge=-90, le=90)
-#     longitude: float = Field(ge=-180, le=180)
-
-#     start_year: int
-#     end_year: int
-
-#     parameter: list[str] = Field(min_length=1, max_length=20)
-
-
-# @app.get("/")
-# def home():
-#     return {"message": "Earth Trend Detective API is running!"}
-
-
-# @app.get("/health")
-# def health():
-#     return {"status": "healthy"}
-
-
-# @app.post("/data/powers")
-# def get_power_data(request: PowerRequest):
-
-#     if request.start_year > request.end_year:
-#         raise HTTPException(
-#             status_code=400,
-#             detail="Start year must be before end year"
-#         )
-
-#     url = (
-#         f"https://power.larc.nasa.gov/api/temporal/"
-#         f"{request.temporal_resolution}/point"
-#     )
-
-#     if request.temporal_resolution == "monthly":
-#         start = str(request.start_year)
-#         end = str(request.end_year)
-
-#     else:
-#         start = f"{request.start_year}0101"
-#         end = f"{request.end_year}1231"
-
-#     params = {
-#         "parameters": ",".join(request.parameter),
-#         "community": "RE",
-#         "longitude": request.longitude,
-#         "latitude": request.latitude,
-#         "start": start,
-#         "end": end,
-#         "format": "JSON"
-#     }
-
-#     try:
-#         response = requests.get(url, params=params, timeout=30)
-#         response.raise_for_status()
-
-#         result = response.json()
-
-#         measurements = result["properties"]["parameter"]
-
-#         data = {}
-
-#         for parameter in request.parameter:
-
-#             parameter_data = measurements[parameter]
-
-#             parameter_list = []
-
-#             for date, value in sorted(parameter_data.items()):
-#                 parameter_list.append({
-#                     "date": date,
-#                     "value": None if value == -999 else value
-#                 })
-
-#             if not any(
-#                 item["value"] is not None
-#                 for item in parameter_list
-#             ):
-#                 raise HTTPException(
-#                     status_code=404,
-#                     detail=f"No valid measurements for {parameter}"
-#                 )
-
-#             data[parameter] = parameter_list
-
-#         return {
-#             "source": "NASA POWER",
-#             "parameters": request.parameter,
-#             "latitude": request.latitude,
-#             "longitude": request.longitude,
-#             "period": {
-#                 "start": request.start_year,
-#                 "end": request.end_year
-#             },
-#             "data": data
-#         }
-
-#     except requests.RequestException as error:
-#         raise HTTPException(
-#             status_code=502,
-#             detail=f"NASA POWER request failed: {str(error)}"
-#         )
-
-#     except (KeyError, ValueError):
-#         raise HTTPException(
-#             status_code=502,
-#             detail="Unexpected response format from NASA POWER"
-#         )
+import pandas as pd
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, Field
-from typing import Literal
-import pandas as pd
 
-# from data.nasa_client import fetch_power_data
-# from data.preprocessing import preprocess_data, get_data_quality, aggregate_annual
-from data.nasa_client import fetch_power_data
-
-from data.preprocessing import (
-    preprocess_data,
-    get_data_quality,
-    aggregate_annual
-)
+from backend.schemas import PowerRequest
+from backend.cache import initialize_cache
+from backend.services import get_power_data
+from backend.retrieval.power import DataRetrievalError
 
 from analysis.pipeline import analyze_annual_trends
 
-# --------------------------------------------------
-# 1. Initialize FastAPI
-# --------------------------------------------------
 
-app = FastAPI(title="Earth Trend Detective API")
+# ==================================================
+# 1. INITIALIZE BACKEND
+# ==================================================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    initialize_cache()
+    yield
 
 
-# --------------------------------------------------
-# 2. Configure CORS for frontend integration
-# --------------------------------------------------
+app = FastAPI(
+    title="Earth Trend Detective API",
+    lifespan=lifespan
+)
+
+
+# ==================================================
+# 2. CORS CONFIGURATION
+# ==================================================
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict this to frontend origins before production
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# --------------------------------------------------
-# 3. Define request schema
-# --------------------------------------------------
+# ==================================================
+# 3. TREND ANALYSIS SETTINGS
+# ==================================================
 
-class PowerRequest(BaseModel):
+from pydantic import BaseModel, Field
 
-    temporal_resolution: Literal[
-        "daily", "monthly", "hourly"
-    ] = "daily"
-
-    initialize_cache()
-
-    start_year: int = Field(ge=1981)
-    end_year: int = Field(ge=1981)
-
-    parameter: list[str] = Field(
-        min_length=1,
-        max_length=20
-    )
 
 class TrendRequest(PowerRequest):
 
@@ -194,38 +65,173 @@ class TrendRequest(PowerRequest):
         lt=1
     )
 
-# --------------------------------------------------
-# 4. Helper function to convert DataFrame to JSON
-# --------------------------------------------------
+
+# ==================================================
+# 4. DATA CONVERSION HELPERS
+# ==================================================
 
 def dataframe_to_records(df):
 
     records = []
 
-    for row in df.itertuples(index=False):
+    for row in df.to_dict(orient="records"):
 
-        date = row.date
-        value = row.value
+        converted = {}
 
-        records.append({
-            "date": (
-                date.isoformat()
-                if pd.notna(date)
-                else None
-            ),
-            "value": (
-                None
-                if pd.isna(value)
-                else float(value)
-            )
-        })
+        for key, value in row.items():
+
+            if pd.isna(value):
+                converted[key] = None
+
+            elif hasattr(value, "isoformat"):
+                converted[key] = value.isoformat()
+
+            elif hasattr(value, "item"):
+                converted[key] = value.item()
+
+            else:
+                converted[key] = value
+
+        records.append(converted)
 
     return records
 
 
-# --------------------------------------------------
-# 5. Basic endpoints
-# --------------------------------------------------
+def prepare_measurements(measurements):
+
+    df = pd.DataFrame(measurements)
+
+    if df.empty:
+        raise ValueError("No measurements were returned.")
+
+    if "date" not in df.columns or "value" not in df.columns:
+        raise ValueError("NASA data is missing date or value columns.")
+
+    df["date"] = pd.to_datetime(
+        df["date"].astype(str),
+        format="mixed",
+        errors="coerce"
+    )
+
+    df["value"] = pd.to_numeric(
+        df["value"],
+        errors="coerce"
+    )
+
+    df = df.dropna(
+        subset=["date", "value"]
+    )
+
+    if df.empty:
+        raise ValueError("No valid measurements are available.")
+
+    df = df.sort_values("date").reset_index(drop=True)
+
+    return df
+
+
+def calculate_data_quality(df):
+
+    total = len(df)
+
+    valid = int(df["value"].notna().sum())
+
+    missing = total - valid
+
+    completeness = (
+        (valid / total) * 100
+        if total > 0
+        else 0
+    )
+
+    return {
+        "total_observations": total,
+        "valid_observations": valid,
+        "missing_observations": missing,
+        "completeness_percent": round(completeness, 2)
+    }
+
+
+# ==================================================
+# 5. ANNUAL DATA AGGREGATION
+# ==================================================
+
+def aggregate_annual(
+    df,
+    temporal_resolution,
+    min_completeness
+):
+
+    data = df.copy()
+
+    data["year"] = data["date"].dt.year
+
+    annual_rows = []
+
+    for year, group in data.groupby("year"):
+
+        if temporal_resolution == "monthly":
+
+            expected = 12
+
+        elif temporal_resolution == "hourly":
+
+            expected = (
+                8784
+                if pd.Timestamp(year=year).is_leap_year
+                else 8760
+            )
+
+        else:
+
+            expected = (
+                366
+                if pd.Timestamp(year=year).is_leap_year
+                else 365
+            )
+
+        valid_values = group["value"].dropna()
+
+        valid_count = len(valid_values)
+
+        completeness = (
+            valid_count / expected
+        ) * 100
+
+        annual_average = (
+            float(valid_values.mean())
+            if valid_count > 0
+            else None
+        )
+
+        annual_rows.append({
+
+            "year": int(year),
+
+            "annual_average": annual_average,
+
+            "valid_observations": valid_count,
+
+            "expected_observations": expected,
+
+            "completeness_percent": round(
+                completeness,
+                2
+            ),
+
+            "eligible_for_trend": (
+                completeness >= min_completeness
+                and annual_average is not None
+            )
+
+        })
+
+    return pd.DataFrame(annual_rows)
+
+
+# ==================================================
+# 6. BASIC ENDPOINTS
+# ==================================================
 
 @app.get("/")
 def home():
@@ -243,14 +249,13 @@ def health():
     }
 
 
-# --------------------------------------------------
-# 6. NASA POWER + Preprocessing endpoint
-# --------------------------------------------------
+# ==================================================
+# 7. NASA POWER DATA ENDPOINT
+# ==================================================
 
 @app.post("/data/powers")
-def get_power_data(request: PowerRequest):
+def retrieve_power_data(request: PowerRequest):
 
-    # Validate date range
     if request.start_year > request.end_year:
 
         raise HTTPException(
@@ -260,44 +265,54 @@ def get_power_data(request: PowerRequest):
 
     try:
 
-        # STEP 1: Retrieve NASA POWER data
-        raw_result = fetch_power_data(
-            latitude=request.latitude,
-            longitude=request.longitude,
-            start_year=request.start_year,
-            end_year=request.end_year,
-            parameters=request.parameter,
-            temporal_resolution=request.temporal_resolution,
-            community="RE"
-        )
+        raw_result = get_power_data(request)
 
-        # STEP 2: Process each requested parameter
         processed_data = {}
 
         for parameter, measurements in raw_result["data"].items():
 
-            # Clean the measurements
-            df = preprocess_data(measurements)
+            df = prepare_measurements(measurements)
 
-            # Calculate data quality
-            quality = get_data_quality(df)
+            quality = calculate_data_quality(df)
 
-            # Store processed results
             processed_data[parameter] = {
+
                 "measurements": dataframe_to_records(df),
-                "quality": jsonable_encoder(quality)
+
+                "quality": quality,
+
+                "available_period": {
+                    "start": df["date"].min().isoformat(),
+                    "end": df["date"].max().isoformat()
+                }
+
             }
 
-        # STEP 3: Return everything to the frontend
         return {
+
             "source": raw_result["source"],
+
             "parameters": raw_result["parameters"],
-            "latitude": raw_result["latitude"],
-            "longitude": raw_result["longitude"],
+
+            "location": {
+                "latitude": raw_result["latitude"],
+                "longitude": raw_result["longitude"]
+            },
+
             "temporal_resolution": raw_result["temporal_resolution"],
-            "period": raw_result["period"],
+
+            "requested_period": raw_result["period"],
+
             "data": processed_data
+
         }
+
+    except DataRetrievalError as error:
+
+        raise HTTPException(
+            status_code=502,
+            detail=str(error)
+        )
 
     except ValueError as error:
 
@@ -306,22 +321,23 @@ def get_power_data(request: PowerRequest):
             detail=str(error)
         )
 
-    except RuntimeError as error:
+    except Exception as error:
 
         raise HTTPException(
-            status_code=502,
-            detail=str(error)
+            status_code=500,
+            detail=f"Data processing failed: {str(error)}"
         )
 
-# --------------------------------------------------
-# 7. NASA POWER + Complete Trend Analysis endpoint
-# --------------------------------------------------
+
+# ==================================================
+# 8. COMPLETE ENVIRONMENTAL TREND ANALYSIS
+# ==================================================
 
 @app.post("/analysis/trends")
 def analyze_trends(request: TrendRequest):
 
-    # Validate date range
     if request.start_year > request.end_year:
+
         raise HTTPException(
             status_code=400,
             detail="Start year must not exceed end year."
@@ -329,71 +345,109 @@ def analyze_trends(request: TrendRequest):
 
     try:
 
-        # STEP 1: Retrieve NASA POWER data
-        raw_result = fetch_power_data(
-            latitude=request.latitude,
-            longitude=request.longitude,
-            start_year=request.start_year,
-            end_year=request.end_year,
-            parameters=request.parameter,
-            temporal_resolution=request.temporal_resolution,
-            community="RE"
-        )
+        # STEP 1: RETRIEVE NASA POWER DATA
+
+        raw_result = get_power_data(request)
 
         analyzed_parameters = {}
 
-        # STEP 2: Analyze each environmental parameter
+        # STEP 2: PROCESS EACH PARAMETER
+
         for parameter, measurements in raw_result["data"].items():
 
-            # Clean raw measurements
-            df = preprocess_data(measurements)
+            df = prepare_measurements(measurements)
 
-            # Calculate original-resolution data quality
-            quality = get_data_quality(df)
+            quality = calculate_data_quality(df)
 
-            # Aggregate measurements into annual averages
+            # STEP 3: AGGREGATE INTO ANNUAL DATA
+
             annual_df = aggregate_annual(
                 df,
                 temporal_resolution=request.temporal_resolution,
                 min_completeness=request.min_completeness
             )
 
-            # Run linear regression, Sen's slope,
-            # and Mann-Kendall
+            # STEP 4: RUN STATISTICAL ANALYSIS
+
+            eligible_df = annual_df[
+                annual_df["eligible_for_trend"]
+            ].copy()
+
+            if len(eligible_df) < 3:
+
+                raise ValueError(
+                    f"Not enough valid annual observations "
+                    f"for {parameter}. At least 3 years "
+                    f"with sufficient data are required."
+                )
+
             trend_results = analyze_annual_trends(
-                annual_df,
+                eligible_df,
                 alpha=request.alpha
             )
 
-            # Convert annual DataFrame into JSON-compatible records
-            annual_records = (
-                annual_df.astype(object)
-                .where(pd.notna(annual_df), None)
-                .to_dict(orient="records")
+            # STEP 5: PREPARE GRAPH DATA
+
+            annual_records = dataframe_to_records(
+                annual_df
             )
 
-            # Store results for this parameter
             analyzed_parameters[parameter] = {
-                "quality": jsonable_encoder(quality),
-                "annual_data": jsonable_encoder(annual_records),
-                "trend_analysis": jsonable_encoder(trend_results)
+
+                "quality": quality,
+
+                "available_period": {
+
+                    "start": df["date"].min().isoformat(),
+
+                    "end": df["date"].max().isoformat()
+
+                },
+
+                "annual_data": annual_records,
+
+                "trend_analysis": jsonable_encoder(
+                    trend_results
+                )
+
             }
 
-        # STEP 3: Return combined results
+        # STEP 6: RETURN RESULTS TO FRONTEND
+
         return {
+
             "source": raw_result["source"],
+
             "location": {
+
                 "latitude": raw_result["latitude"],
+
                 "longitude": raw_result["longitude"]
+
             },
+
             "temporal_resolution": raw_result["temporal_resolution"],
-            "period": raw_result["period"],
+
+            "requested_period": raw_result["period"],
+
             "settings": {
+
                 "min_completeness": request.min_completeness,
+
                 "significance_level": request.alpha
+
             },
+
             "parameters": analyzed_parameters
+
         }
+
+    except DataRetrievalError as error:
+
+        raise HTTPException(
+            status_code=502,
+            detail=str(error)
+        )
 
     except ValueError as error:
 
@@ -402,10 +456,9 @@ def analyze_trends(request: TrendRequest):
             detail=str(error)
         )
 
-    except RuntimeError as error:
+    except Exception as error:
 
         raise HTTPException(
-            status_code=502,
-            detail=str(error)
+            status_code=500,
+            detail=f"Trend analysis failed: {str(error)}"
         )
-

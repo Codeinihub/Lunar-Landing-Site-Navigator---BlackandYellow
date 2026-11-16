@@ -1,7 +1,7 @@
 
- // ===================================
- // EARTH DETECTIVE - SEARCH FUNCTION
- // ===================================
+// ===================================
+// EARTH DETECTIVE - SEARCH FUNCTION
+// ===================================
 
 function searchLocation() {
 
@@ -10,67 +10,106 @@ function searchLocation() {
 
     const location = input.value.trim();
 
-    const startTime = document.getElementById("startTime").value;
-    const endTime = document.getElementById("endTime").value;
+    const startDate = document.getElementById("startTime").value;
+    const endDate = document.getElementById("endTime").value;
+
+
+    // CHECK LOCATION
 
     if (location === "" && !selectedBounds && !locationMarker) {
+
         result.textContent =
             "Please enter a location or select an area on the map.";
+
         return;
     }
 
-    if (!startTime || !endTime) {
+
+    // CHECK DATES
+
+    if (!startDate || !endDate) {
+
         result.textContent =
-            "Please select both a start and end date and time.";
+            "Please select both a start date and an end date.";
+
         return;
     }
 
-    if (new Date(endTime) <= new Date(startTime)) {
+
+    // CHECK DATE ORDER
+
+    if (endDate < startDate) {
+
         result.textContent =
-            "The end date and time must be after the start date and time.";
+            "The end date must be after the start date.";
+
         return;
     }
 
-    const start = new Date(startTime).toLocaleString();
-    const end = new Date(endTime).toLocaleString();
+
+    // DATE INFORMATION
+
+    const start = startDate;
+    const end = endDate;
+
+
+    // REGION INFORMATION
 
     let regionInformation = "";
 
     if (selectedBounds) {
+
         regionInformation = `
             <p><strong>North:</strong> ${selectedBounds.north}°</p>
             <p><strong>South:</strong> ${selectedBounds.south}°</p>
             <p><strong>East:</strong> ${selectedBounds.east}°</p>
             <p><strong>West:</strong> ${selectedBounds.west}°</p>
         `;
+
     }
+
+
+    // POINT INFORMATION
 
     let pointInformation = "";
 
     if (locationMarker) {
+
         const point = locationMarker.getLatLng();
 
         pointInformation = `
             <p><strong>Latitude:</strong> ${point.lat.toFixed(4)}°</p>
             <p><strong>Longitude:</strong> ${point.lng.toFixed(4)}°</p>
         `;
+
     }
 
+
+    // DISPLAY SEARCH INFORMATION
+
     result.innerHTML = `
+
         <h3>EARTH DATA EXPLORATION</h3>
 
-        <p><strong>Location:</strong>
-        ${escapeHTML(location || "Custom map selection")}</p>
+        <p>
+            <strong>Location:</strong>
+            ${escapeHTML(location || "Custom map selection")}
+        </p>
 
         ${regionInformation}
+
         ${pointInformation}
 
-        <p><strong>Start:</strong> ${escapeHTML(start)}</p>
-        <p><strong>End:</strong> ${escapeHTML(end)}</p>
+        <p><strong>Start Date:</strong> ${escapeHTML(start)}</p>
+
+        <p><strong>End Date:</strong> ${escapeHTML(end)}</p>
 
         <p>Status: Search submitted.</p>
+
         <p>Environmental data analysis can now be connected.</p>
+
     `;
+
 }
 
 
@@ -80,14 +119,16 @@ function searchLocation() {
 
 function escapeHTML(text) {
 
-    return text.replace(/[&<>"']/g, function(character) {
+    return String(text).replace(/[&<>"']/g, function(character) {
 
         const entities = {
+
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;",
             '"': "&quot;",
             "'": "&#39;"
+
         };
 
         return entities[character];
@@ -104,6 +145,7 @@ function escapeHTML(text) {
 let map = null;
 
 let selectionRectangle = null;
+
 let locationMarker = null;
 
 let selectedBounds = null;
@@ -114,10 +156,15 @@ let selectedBounds = null;
 // ===================================
 
 const regionToggle = document.getElementById("regionToggle");
+
 const mapDropdown = document.getElementById("mapDropdown");
+
 const regionText = document.getElementById("regionText");
+
 const dropdownArrow = document.getElementById("dropdownArrow");
+
 const coordinates = document.getElementById("coordinates");
+
 const clearRegion = document.getElementById("clearRegion");
 
 
@@ -133,14 +180,20 @@ regionToggle.addEventListener("click", function() {
 
     dropdownArrow.textContent = isOpen ? "▲" : "▼";
 
+
     if (isOpen && !map) {
+
         initializeMap();
+
     }
+
 
     if (isOpen && map) {
 
         setTimeout(function() {
+
             map.invalidateSize();
+
         }, 150);
 
     }
@@ -168,7 +221,6 @@ function initializeMap() {
 
         maxBoundsViscosity: 1,
 
-        // Disable normal left-button map dragging
         dragging: false,
 
         scrollWheelZoom: true,
@@ -191,6 +243,7 @@ function initializeMap() {
             noWrap: true
 
         }
+
     ).addTo(map);
 
 
@@ -213,6 +266,7 @@ function initializeMap() {
                 interactive: false
 
             }
+
         ).addTo(map);
 
     }
@@ -237,6 +291,7 @@ function initializeMap() {
                 interactive: false
 
             }
+
         ).addTo(map);
 
     }
@@ -346,6 +401,7 @@ function initializeMap() {
 
             }
 
+
             if (!selectionRectangle) {
 
                 selectionRectangle = L.rectangle(
@@ -361,6 +417,7 @@ function initializeMap() {
                         fillOpacity: 0.2
 
                     }
+
                 ).addTo(map);
 
             } else {
@@ -410,6 +467,7 @@ function initializeMap() {
 
         const endPoint = map.mouseEventToLatLng(e);
 
+
         interaction = null;
 
         moved = false;
@@ -431,6 +489,7 @@ function initializeMap() {
 
             }
 
+
             if (locationMarker) {
 
                 map.removeLayer(locationMarker);
@@ -442,15 +501,24 @@ function initializeMap() {
             locationMarker = L.marker(originalPoint).addTo(map);
 
             locationMarker.bindPopup(`
+
                 <strong>SELECTED LOCATION</strong><br>
+
                 Latitude: ${originalPoint.lat.toFixed(4)}°<br>
+
                 Longitude: ${originalPoint.lng.toFixed(4)}°
+
             `).openPopup();
 
+
             coordinates.innerHTML = `
+
                 <strong>SELECTED POINT</strong><br>
+
                 Latitude: ${originalPoint.lat.toFixed(4)}°<br>
+
                 Longitude: ${originalPoint.lng.toFixed(4)}°
+
             `;
 
             regionText.textContent = "Exact Location Selected";
@@ -479,6 +547,7 @@ function initializeMap() {
 
             };
 
+
             if (locationMarker) {
 
                 map.removeLayer(locationMarker);
@@ -487,12 +556,19 @@ function initializeMap() {
 
             }
 
+
             coordinates.innerHTML = `
+
                 <strong>SELECTED REGION</strong><br>
+
                 North: ${selectedBounds.north}°<br>
+
                 South: ${selectedBounds.south}°<br>
+
                 East: ${selectedBounds.east}°<br>
+
                 West: ${selectedBounds.west}°
+
             `;
 
             regionText.textContent = "Custom Region Selected";
@@ -536,6 +612,7 @@ clearRegion.addEventListener("click", function() {
 
     }
 
+
     if (locationMarker && map) {
 
         map.removeLayer(locationMarker);
@@ -543,6 +620,7 @@ clearRegion.addEventListener("click", function() {
         locationMarker = null;
 
     }
+
 
     selectedBounds = null;
 
