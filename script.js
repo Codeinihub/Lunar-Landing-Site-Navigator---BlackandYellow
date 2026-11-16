@@ -261,6 +261,79 @@ function displayDashboard(data, search) {
         mannKendall.is_significant
             ? "A statistically significant trend was detected at the selected significance level."
             : "No statistically significant trend was detected at the selected significance level.";
+            
+    // ===================================
+    // SCIENTIFIC INTERPRETATION
+    // ===================================
+
+    const interpretationElement =
+        document.getElementById("scientificInterpretation");
+
+    const observedDirection =
+        analysis.summary.observed_direction;
+
+    const pValue =
+        Number(mannKendall.p_value);
+
+    const alpha =
+        Number(data.settings?.significance_level ?? 0.05);
+
+    const significant =
+        mannKendall.is_significant;
+
+    const yearsAnalyzed =
+        mannKendall.years_analyzed || [];
+
+    const parameterLabel =
+        parameterLabels[parameterName] || parameterName;
+
+    // Describe the observed direction
+    let directionText;
+
+    if (observedDirection === "increasing") {
+        directionText = "an overall increase";
+    } else if (observedDirection === "decreasing") {
+        directionText = "an overall decrease";
+    } else {
+        directionText = "no clear directional change";
+    }
+
+    // Interpret statistical significance
+    let conclusion;
+
+    if (significant) {
+
+        conclusion =
+            "The Mann-Kendall test provides statistically " +
+            "significant evidence of a monotonic trend.";
+
+    } else {
+
+        conclusion =
+            "However, the Mann-Kendall test does not provide " +
+            "sufficient evidence of a statistically " +
+            "significant monotonic trend.";
+
+    }
+
+    // Caution for short analysis periods
+    const caution =
+        yearsAnalyzed.length < 10
+            ? "This analysis uses relatively few annual " +
+            "observations, so the result should be " +
+            "interpreted cautiously."
+            : "";
+
+    // Display interpretation
+    interpretationElement.textContent =
+        `Based on ${yearsAnalyzed.length} eligible years, ` +
+        `${parameterLabel.toLowerCase()} shows ${directionText} ` +
+        `in its annual averages. ` +
+        `${conclusion} ` +
+        `(p = ${pValue.toFixed(5)}, α = ${alpha}). ` +
+        `${caution} ` +
+        `This analysis describes historical trends, ` +
+        `not future predictions.`;
 
     // LOCATION LABEL
 

@@ -582,3 +582,28 @@ footer {
         height: 260px;
     }
 }
+
+/* ===================================
+   SCIENTIFIC INTERPRETATION
+=================================== */
+
+.scientific-interpretation {
+    margin-top: 20px;
+    padding: 20px;
+    background: #222222;
+    border-left: 3px solid #f5c400;
+    border-radius: 4px;
+}
+
+.scientific-interpretation h3 {
+    color: #f5c400;
+    font-size: 15px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.scientific-interpretation p {
+    color: #dddddd;
+    font-size: 14px;
+    line-height: 1.7;
+}
