@@ -183,9 +183,9 @@ cython_debug/
 # NASA Space Apps & Large Dataset Additions
 # ==========================================
 # Ignore local data folders entirely
-data/
-datasets/
-raw_data/
+# data/
+# datasets/
+# raw_data/
 
 # Ignore common large geospatial/planetary data file formats
 *.csv
